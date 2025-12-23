@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="InventoryMS.Api/InventoryMS.Api.csproj" />
+  <Project Path="InventoryMS.Database/InventoryMS.Database.csproj" Id="1e9d1cea-c1c6-4f86-bca6-c0ec4e57bebb" />
+  <Project Path="InventoryMS.Models/InventoryMS.Models.csproj" Id="9727f68f-508c-4892-9dc0-3d352fdef0e2" />
+  <Project Path="InventoryMS.Services/InventoryMS.Services.csproj" Id="8f5422c7-49b6-4bfd-8a72-4255051737b8" />
 </Solution>
