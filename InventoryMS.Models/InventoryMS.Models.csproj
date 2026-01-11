@@ -11,4 +11,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\ApplicationUserModel\Dto\" />
+    <Folder Include="Entities\CategoryModel\Dto\" />
+    <Folder Include="Entities\Customer\Dto\" />
+    <Folder Include="Entities\ItemModel\Dto\" />
+    <Folder Include="Entities\Stock\Dto\" />
+  </ItemGroup>
+
 </Project>
