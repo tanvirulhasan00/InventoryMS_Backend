@@ -10,6 +10,7 @@ namespace InventoryMS.Models.Entities.Customer
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        public string GranterName { get; set; }
         public string PhoneNumber { get; set; }
         public string GranterPhoneNumber { get; set; }
         public string? Email { get; set; }
