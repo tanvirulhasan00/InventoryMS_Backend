@@ -7,12 +7,8 @@ using System.Text;
 
 namespace InventoryMS.Database.Data
 {
-    public class InventoryMSDbContext : IdentityDbContext<ApplicationUser>
+    public class InventoryMSDbContext(DbContextOptions<InventoryMSDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public InventoryMSDbContext(DbContextOptions<InventoryMSDbContext> options) : base(options)
-        {
-        }
-
         //db table
         public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
 
