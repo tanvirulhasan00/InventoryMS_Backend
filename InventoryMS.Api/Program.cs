@@ -112,7 +112,7 @@ builder.Services.AddAuthentication(options =>
     });
 
 // ===== CORS =====
-const string allowedOrigin = "http://localhost:51452";
+const string allowedOrigin = "http://localhost:7186";
 
 builder.Services.AddCors(options =>
 {

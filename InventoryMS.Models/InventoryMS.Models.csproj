@@ -7,16 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Entities\ApplicationUserModel\Dto\" />
-    <Folder Include="Entities\CategoryModel\Dto\" />
-    <Folder Include="Entities\Customer\Dto\" />
-    <Folder Include="Entities\ItemModel\Dto\" />
-    <Folder Include="Entities\Stock\Dto\" />
+    <Folder Include="Entities\ProductModels\Dto\" />
+    <Folder Include="Entities\CustomerModel\Dto\" />
+    <Folder Include="Entities\LotModel\Dto\" />
+    <Folder Include="Entities\PurchaseModel\Dto\" />
+    <Folder Include="Entities\SalesModel\Dto\" />
+    <Folder Include="Entities\StockModel\Dto\" />
+    <Folder Include="Entities\WarehouseModel\Dto\" />
   </ItemGroup>
 
 </Project>
