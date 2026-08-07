@@ -1,10 +1,14 @@
 using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using InventoryMS.Database.Data;
 using InventoryMS.Models.Entities.ApplicationUserModel;
+using InventoryMS.Services.ServiceModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
+builder.Services.AddAuthorization();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 
 // DbContext
 builder.Services.AddDbContext<InventoryMSDbContext>(options =>
@@ -30,35 +36,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 // scopes
 
-//openapi config
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, _, _) =>
-    {
-        document.Info = new()
-        {
-            Title = "InventoryMS API Project",
-            Version = "v1",
-            Description = "API for inventoryMS project"
-        };
-        return Task.CompletedTask;
-    });
+// OpenAPI (default .NET 10) - JSON only
+builder.Services.AddEndpointsApiExplorer(); // gnerates /openapi/v1.json
 
-});
-builder.Services.AddOpenApi("v2", options =>
-{
-    options.AddDocumentTransformer((document, _, _) =>
-    {
-        document.Info = new()
-        {
-            Title = "InventoryMS API Project",
-            Version = "v2",
-            Description = "API for inventoryMS project"
-        };
-        return Task.CompletedTask;
-    });
-
-});
 
 //api versioning
 builder.Services.AddApiVersioning(options =>
@@ -73,6 +53,22 @@ builder.Services.AddApiVersioning()
         options.GroupNameFormat = "'v'VVV";
         options.SubstituteApiVersionInUrl = true;
     });
+// Register one OpenAPI document per discovered API version
+var apiVersionDescriptionProvider = builder.Services.BuildServiceProvider()
+    .GetRequiredService<IApiVersionDescriptionProvider>();
+
+foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+{
+    builder.Services.AddOpenApi(description.GroupName, options =>
+    {
+        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+        options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
+        options.AddOperationTransformer<SecurityRequirementOperationTransformer>();
+    });
+} 
+
+
+
 
 // ===== JWT Authentication =====
 
@@ -100,7 +96,7 @@ builder.Services.AddAuthentication(options =>
         {
             OnMessageReceived = context =>
             {
-                // Read token from the HTTP-only cookie
+                // Read toke   
                 var accessToken = context.HttpContext.Request.Cookies["access_token"];
                 if (!string.IsNullOrEmpty(accessToken))
                 {
@@ -109,7 +105,8 @@ builder.Services.AddAuthentication(options =>
                 return Task.CompletedTask;
             }
         };
-    });
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
 // ===== CORS =====
 const string allowedOrigin = "http://localhost:7186";
@@ -136,9 +133,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "InventoryMS v1");
-        options.SwaggerEndpoint("/openapi/v2.json", "InventoryMS v2");
+        //options.SwaggerEndpoint("/openapi/v1.json", "InventoryMS v1");
+        //options.SwaggerEndpoint("/openapi/v2.json", "InventoryMS v2");
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint($"/openapi/{description.GroupName}.json", description.GroupName);
+        }
+        //options.OAuthUsePkce();
     });
+
 }
 // Redirect root URL to Swagger UI
 app.MapGet("/", context =>

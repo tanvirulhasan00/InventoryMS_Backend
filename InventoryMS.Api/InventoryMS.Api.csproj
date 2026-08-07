@@ -28,6 +28,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InventoryMS.Database\InventoryMS.Database.csproj" />
+    <ProjectReference Include="..\InventoryMS.Services\InventoryMS.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include=" OpenApi\" />
   </ItemGroup>
 
 </Project>
