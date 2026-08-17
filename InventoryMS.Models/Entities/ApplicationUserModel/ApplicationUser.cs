@@ -11,6 +11,8 @@ namespace InventoryMS.Models.Entities.ApplicationUserModel
         public string Password { get; set; }
         public string? Address { get; set; }
         public bool IsActive { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

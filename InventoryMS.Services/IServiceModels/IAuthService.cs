@@ -10,6 +10,7 @@ namespace InventoryMS.Services.IServiceModels
     {
         bool IsUniqueUser(string phoneNumber);
         Task<ApiResponse> Login(LoginRequestDto request);
+        Task<ApiResponse> LoginWithCookieAuth(LoginRequestDto request);
         Task<ApiResponse> Registration();
         Task<ApiResponse> ResetPassword();
         Task<ApiResponse> UpdatePassword();

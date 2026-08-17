@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using InventoryMS.Database.Data;
 using InventoryMS.Models.Entities.ApplicationUserModel;
+using InventoryMS.Services.IServiceModels;
 using InventoryMS.Services.ServiceModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
 
@@ -35,6 +36,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // scopes
+builder.Services.AddScoped<IServiceManager, ServiceManager>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddScoped<IChecker, Checker>();
 
 // OpenAPI (default .NET 10) - JSON only
 builder.Services.AddEndpointsApiExplorer(); // gnerates /openapi/v1.json
@@ -156,4 +160,30 @@ app.UseAuthorization();
 app.MapHealthChecks("/health");
 app.MapControllers();
 
+var conStr = builder.Configuration.GetConnectionString("LocalConnectionString");
+if (!await ChecksDbConnection(app, conStr))
+{
+    // stop app completely
+    return;
+}
+await SeedDatabaseAsync(app);
+
 app.Run();
+
+// ===== Helper Functions =====
+async Task<bool> ChecksDbConnection(WebApplication app, string connectionString)
+{
+    using var scope = app.Services.CreateScope();
+    var dbChecker = scope.ServiceProvider.GetRequiredService<IChecker>();
+    var isConnected = await dbChecker.IsDatabaseConnectedAsync(connectionString);
+    Console.WriteLine(isConnected
+        ? "✅ Database is connected!"
+        : "❌ Database connection failed. App is shutting down...");
+    return isConnected;
+}
+async Task SeedDatabaseAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+    await dbInitializer.InitializeAsync();
+}
