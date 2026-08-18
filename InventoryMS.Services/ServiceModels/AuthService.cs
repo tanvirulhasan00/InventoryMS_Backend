@@ -61,10 +61,13 @@ namespace InventoryMS.Services.ServiceModels
                 var roles = await userManager.GetRolesAsync(user);
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(secretKey);
+                //var secretKeyBytes = Environment.GetEnvironmentVariable("TokenSetting:SecretKey");
+                //Console.WriteLine(secretKeyBytes);
+                //if (string.IsNullOrEmpty(secretKeyBytes)) throw new InvalidOperationException("Security Configuration Missing");
                 //var tokenExpire = request.RememberMe ? DateTime.UtcNow.AddDays(10) : DateTime.UtcNow.AddMinutes(30);
-                TimeSpan atExpirySpan = request.RememberMe ? TimeSpan.FromDays(10) : TimeSpan.FromMinutes(30);
-                var now = DateTime.UtcNow;
-                DateTime tokenExpire = now + atExpirySpan;
+                //TimeSpan atExpirySpan = request.RememberMe ? TimeSpan.FromDays(10) : TimeSpan.FromMinutes(30);
+                //var now = DateTime.UtcNow;
+                //DateTime tokenExpire = now + atExpirySpan;
 
                 var tokenDescription = new SecurityTokenDescriptor
                 {
@@ -74,7 +77,7 @@ namespace InventoryMS.Services.ServiceModels
                         new Claim(ClaimTypes.Role, roles.FirstOrDefault())
 
                         ]),
-                    Expires = tokenExpire,
+                    //Expires = tokenExpire,
                     SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 };
 
@@ -84,7 +87,7 @@ namespace InventoryMS.Services.ServiceModels
                 loginRes.UserId = user.Id;
                 loginRes.Role = roles.FirstOrDefault();
                 loginRes.Token = tokenHandler.WriteToken(token);
-                loginRes.TokenExpire = tokenExpire.ToLocalTime();
+                //loginRes.TokenExpire = tokenExpire.ToLocalTime();
 
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
@@ -200,9 +203,58 @@ namespace InventoryMS.Services.ServiceModels
             }
         }
 
-        public Task<ApiResponse> Registration()
+        public async Task<ApiResponse> Registration(RegistrationReqDto request)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse();
+            try
+            {
+                if (request == null)
+                {
+                    response.Success = false;
+                    response.StatusCode = HttpStatusCode.BadRequest;
+                    response.Message = "Invalid registration data";
+                    return response;
+                }
+                ApplicationUser user = new()
+                {
+                    UserName = request.UserName,
+                    FullName = request.FullName,
+                    Password = request.Password,
+                    PhoneNumber = request.PhoneNumber,
+                    Email = request.Email,
+                    Address = request.Address
+                };
+
+                var resultRes = await userManager.CreateAsync(user, request.Password);
+
+                if (resultRes.Succeeded)
+                {
+                    var roleAssigned = await userManager.AddToRoleAsync(user, request.Role);
+
+
+                    response.Success = true;
+                    response.StatusCode = HttpStatusCode.Created;
+                    response.Message = "User created successfully.";
+                    //return response;
+                }
+                else
+                {
+                    response.Success = false;
+                    response.StatusCode = HttpStatusCode.InternalServerError;
+                    response.Message = $"{string.Join("\n", resultRes.Errors.Select(s => s.Code))}\n{string.Join("\n", resultRes.Errors.Select(s => s.Description))}";
+                }
+
+                return response;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                response.Message = ex?.Message + ex?.InnerException?.Message;
+                return response;
+            }
         }
 
         public Task<ApiResponse> ResetPassword()
