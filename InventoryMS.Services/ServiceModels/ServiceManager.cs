@@ -1,11 +1,12 @@
 ﻿using InventoryMS.Database.Data;
 using InventoryMS.Models.Entities.ApplicationUserModel;
 using InventoryMS.Services.IServiceModels;
+using InventoryMS.Services.IServiceModels.IProductServices;
+using InventoryMS.Services.ServiceModels.ProductServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace InventoryMS.Services.ServiceModels
@@ -20,10 +21,13 @@ namespace InventoryMS.Services.ServiceModels
         private readonly string _secretKey = configuration.GetValue<string>("TokenSetting:SecretKey") ?? "";
 
         IAuthService IServiceManager.AuthService => new AuthService(context, userManager, roleManager, httpContextAccessor, _secretKey);
+        ICustomerService IServiceManager.CustomerService => new CustomerService(context);
+        IBrandService IServiceManager.BrandService => new BrandService(context);
+        IWarehouseService IServiceManager.WarehouseService => new WarehouseService(context);
 
-        public async Task<int> Save()
+        public async Task<int> Save(CancellationToken cancellationToken)
         {
-            return await context.SaveChangesAsync();
+            return await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -12,9 +12,9 @@ namespace InventoryMS.Services.ServiceModels
     {
         private readonly DbSet<T> dbSet = dbcontext.Set<T>();
 
-        public async Task AddAsync(T entity)
+        public async Task AddAsync(T entity, CancellationToken cancellationToken)
         {
-            await dbSet.AddAsync(entity);
+            await dbSet.AddAsync(entity,cancellationToken);
         }
 
         public async Task<List<T>> GetAllAsync(GenericRequest<T> request)

@@ -9,7 +9,7 @@ namespace InventoryMS.Services.IServiceModels
     {
         Task<List<T>> GetAllAsync(GenericRequest<T> request);
         Task<T> GetAsync(GenericRequest<T> request);
-        Task AddAsync(T entity);
+        Task AddAsync(T entity, CancellationToken cancellationToken);
         void Remove(T entity);
         void RemoveRange(List<T> entities);
     }

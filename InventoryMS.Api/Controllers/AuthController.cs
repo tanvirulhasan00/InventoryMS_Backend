@@ -1,17 +1,18 @@
 ﻿using Asp.Versioning;
-using InventoryMS.Database.Data;
+using InventoryMS.Models.Entities.ApplicationUserModel;
 using InventoryMS.Models.Entities.ApplicationUserModel.Dto;
+using InventoryMS.Models.Request;
 using InventoryMS.Models.Response;
 using InventoryMS.Services.IServiceModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace InventoryMS.Api.Controllers
 {
     [Route("api/v{version:apiVersion}/auth")] 
     [ApiController]
     [ApiVersion("1.0")]
-    public class AuthController(IServiceManager service, InventoryMSDbContext db) : ControllerBase
+    public class AuthController(IServiceManager service) : ControllerBase
     {
         [HttpGet]
         [Route("get-all-user")]
@@ -20,7 +21,11 @@ namespace InventoryMS.Api.Controllers
             var response = new ApiResponse();
             try
             {
-                var result = await db.ApplicationUsers.ToListAsync();
+                var result = await service.AuthService.GetAllAsync(new GenericRequest<ApplicationUser>
+                {
+                    Expression = null,
+                    
+                });
                 response.Results = result;
                 return response;
 

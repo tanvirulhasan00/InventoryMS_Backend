@@ -1,4 +1,5 @@
-﻿using InventoryMS.Models.Entities.ApplicationUserModel.Dto;
+﻿using InventoryMS.Models.Entities.ApplicationUserModel;
+using InventoryMS.Models.Entities.ApplicationUserModel.Dto;
 using InventoryMS.Models.Response;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace InventoryMS.Services.IServiceModels
 {
-    public interface IAuthService
+    public interface IAuthService : IServices<ApplicationUser>
     {
         bool IsUniqueUser(string phoneNumber);
         Task<ApiResponse> Login(LoginRequestDto request);

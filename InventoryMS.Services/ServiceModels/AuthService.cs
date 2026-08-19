@@ -15,7 +15,7 @@ using System.Text;
 
 namespace InventoryMS.Services.ServiceModels
 {
-    public class AuthService(InventoryMSDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, string secretKey) : IAuthService
+    public class AuthService(InventoryMSDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor, string secretKey) : Services<ApplicationUser>(context), IAuthService
     {
         public bool IsUniqueUser(string phoneNumber)
         {

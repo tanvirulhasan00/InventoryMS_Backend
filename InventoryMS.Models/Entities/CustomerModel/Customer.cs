@@ -8,8 +8,9 @@ namespace InventoryMS.Models.Entities.CustomerModel
     public class Customer
     {
         [Key]
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; init; }
         public string CustomerName { get; set; }
+        public string? CompanyName { get; set; }
         public string PhoneNumber { get; set; }
         public string? Email { get; set; }
         public string? Address { get; set; }
