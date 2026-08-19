@@ -12,5 +12,6 @@ namespace InventoryMS.Services.IServiceModels
         public ICustomerService CustomerService { get; }
         public IWarehouseService WarehouseService { get; }
         public IBrandService BrandService { get; }
+        public ICategoryService CategoryService { get; }
     }
 }

@@ -11,6 +11,8 @@ namespace InventoryMS.Models.Entities.ProductModels
         public Guid CategoryId { get; init; }
         public string CategoryName { get; set; }
         public string Description { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public bool IsActive { get; set; }
     }
 }
