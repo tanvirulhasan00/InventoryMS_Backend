@@ -9,11 +9,11 @@ namespace InventoryMS.Models.Entities.ProductModels
     {
         [Key]
         public Guid BrandId { get; init; }
-        public string BrandName { get; init; }
-        public string BrandDescription { get; init; }
-        public string? LicenseNo { get; init; }
+        public string BrandName { get; set; }
+        public string BrandDescription { get; set; }
+        public string? LicenseNo { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public bool IsActive { get; init; }
+        public bool IsActive { get; set; }
     }
 }
