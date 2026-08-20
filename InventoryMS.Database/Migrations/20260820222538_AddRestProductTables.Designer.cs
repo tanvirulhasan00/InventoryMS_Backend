@@ -3,6 +3,7 @@ using System;
 using InventoryMS.Database.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InventoryMS.Database.Migrations
 {
     [DbContext(typeof(InventoryMSDbContext))]
-    partial class InventoryMSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820222538_AddRestProductTables")]
+    partial class AddRestProductTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,32 +153,6 @@ namespace InventoryMS.Database.Migrations
                     b.HasKey("CustomerId");
 
                     b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("InventoryMS.Models.Entities.LotModel.Lot", b =>
-                {
-                    b.Property<Guid>("LotId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("LotNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("PurchaseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ReceivedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("LotId");
-
-                    b.ToTable("Lots");
                 });
 
             modelBuilder.Entity("InventoryMS.Models.Entities.ProductModels.Brand", b =>
@@ -326,9 +303,6 @@ namespace InventoryMS.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("LotId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("MinimumStock")
                         .HasColumnType("integer");
 
@@ -348,8 +322,6 @@ namespace InventoryMS.Database.Migrations
                     b.HasKey("VariantId");
 
                     b.HasIndex("ColorId");
-
-                    b.HasIndex("LotId");
 
                     b.HasIndex("ProductId");
 
@@ -616,10 +588,6 @@ namespace InventoryMS.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InventoryMS.Models.Entities.LotModel.Lot", "Lot")
-                        .WithMany()
-                        .HasForeignKey("LotId");
-
                     b.HasOne("InventoryMS.Models.Entities.ProductModels.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -633,8 +601,6 @@ namespace InventoryMS.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Color");
-
-                    b.Navigation("Lot");
 
                     b.Navigation("Product");
 

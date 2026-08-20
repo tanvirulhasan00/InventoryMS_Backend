@@ -28,6 +28,8 @@ namespace InventoryMS.Services.ServiceModels
         IColorService IServiceManager.ColorService => new ColorService(context);
         ISizeService IServiceManager.SizeService => new SizeService(context);
         IUnitService IServiceManager.UnitService => new UnitService(context);
+        IProductService IServiceManager.ProductService => new ProductService(context);
+
 
         public async Task<int> Save(CancellationToken cancellationToken)
         {

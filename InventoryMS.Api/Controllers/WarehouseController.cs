@@ -114,7 +114,7 @@ namespace InventoryMS.Api.Controllers
                 }
 
                 var warehouse = await service.WarehouseService.GetAllAsync(new GenericRequest<Warehouse> { Expression = null,CancellationToken = cancellationToken });
-                var nextNumber = warehouse.Count() + 1;
+                var nextNumber = warehouse.Count + 1;
                 Warehouse toCreate = new()
                 {
                     WarehouseName = request.WarehouseName,

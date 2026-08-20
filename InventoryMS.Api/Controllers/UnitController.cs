@@ -12,7 +12,7 @@ using System.Net;
 
 namespace InventoryMS.Api.Controllers
 {
-    [Route("api/v{version:apiVersion}/category")]
+    [Route("api/v{version:apiVersion}/unit")]
     [ApiController]
     [ApiVersion("1.0")]
     public class UnitController(IServiceManager service) : ControllerBase

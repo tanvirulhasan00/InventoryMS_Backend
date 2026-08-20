@@ -12,22 +12,23 @@ using System.Net;
 
 namespace InventoryMS.Api.Controllers
 {
-    [Route("api/v{version:apiVersion}/size")]
+    [Route("api/v{version:apiVersion}/product")]
     [ApiController]
     [ApiVersion("1.0")]
-    public class SizeController(IServiceManager service) : ControllerBase
+    public class ProductController(IServiceManager service) : ControllerBase
     {
         [HttpGet]
         [Route("get-all")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetAllSize(CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetAllProduct(CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                var result = await service.SizeService.GetAllAsync(new GenericRequest<Size>
+                var result = await service.ProductService.GetAllAsync(new GenericRequest<Product>
                 {
                     Expression = null,
+                    IncludeProperties = "Category,Brand,Unit",
                     CancellationToken = cancellationToken
 
                 });
@@ -35,13 +36,25 @@ namespace InventoryMS.Api.Controllers
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Size data not found";
+                    response.Message = "Product data not found";
                     return response;
                 }
+                var productToShow = result.Select(p => new
+                {
+                    p.ProductId,
+                    p.ProductCode,
+                    p.ProductName,
+                    p.Category.CategoryName,
+                    p.Brand.BrandName,
+                    p.Unit.UnitName,
+                    p.IsActive,
+                    p.CreatedAt,
+                    p.UpdatedAt
+                }).ToList();
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
                 response.Message = "Successful";
-                response.Results = result;
+                response.Results = productToShow;
                 return response;
 
             }
@@ -57,30 +70,42 @@ namespace InventoryMS.Api.Controllers
         [HttpGet]
         [Route("get-by-id")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetSizeById(string SizeId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetProductById(string ProductId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                if (SizeId == null)
+                if (ProductId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     response.Message = "Invalid Id";
                     return response;
                 }
-                var result = await service.SizeService.GetAsync(new GenericRequest<Size> { Expression = s => s.SizeId.ToString() == SizeId, CancellationToken = cancellationToken });
+                var result = await service.ProductService.GetAsync(new GenericRequest<Product> { Expression = p => p.ProductId.ToString() == ProductId, IncludeProperties = "Category,Brand,Unit", CancellationToken = cancellationToken });
                 if (result == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Size data not found";
+                    response.Message = "Product data not found";
                     return response;
                 }
+                var productToShow = new
+                {
+                    result.ProductId,
+                    result.ProductCode,
+                    result.ProductName,
+                    result.Category.CategoryName,
+                    result.Brand.BrandName,
+                    result.Unit.UnitName,
+                    result.IsActive,
+                    CreatedAt = result.CreatedAt.ToLocalTime(),
+                    UpdatedAt = result.UpdatedAt.ToLocalTime()
+                };
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
                 response.Message = "Successful";
-                response.Results = result;
+                response.Results = productToShow;
                 return response;
 
             }
@@ -96,7 +121,7 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("create")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> CreateSize(CreateSizeDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> CreateProduct(CreateProductDto request, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
@@ -109,20 +134,30 @@ namespace InventoryMS.Api.Controllers
                     response.Message = "Invalid request data";
                     return response;
                 }
-                Size toCreate = new()
+                var existingProduct = await service.ProductService.GetAllAsync(new GenericRequest<Product>
                 {
-                    SizeName = request.SizeName,
-                    CreatedAt = DateTime.UtcNow,
+                    Expression = null,
+                    CancellationToken = cancellationToken
+                });
+                var nextNumber = existingProduct.Count + 1;
+                Product toCreate = new()
+                {
+                    ProductCode = $"P-{nextNumber:D3}",
+                    ProductName = request.ProductName,
+                    CategoryId = Guid.Parse(request.CategoryId),
+                    BrandId = Guid.Parse(request.BrandId),
+                    UnitId = Guid.Parse(request.UnitId),
                     IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
                     
                 };
-                await service.SizeService.AddAsync(toCreate, cancellationToken);
+                await service.ProductService.AddAsync(toCreate, cancellationToken);
                 int result = await service.Save(cancellationToken);
                 if (result == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to create size";
+                    response.Message = "Failed to create product";
                     return response;
                 }
                 response.Success = true;
@@ -151,10 +186,10 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("update")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> UpdateSize(UpdateSizeDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> UpdateProduct(UpdateProductDto request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var response = await service.SizeService.UpdateSizeAsync(request, cancellationToken);
+            var response = await service.ProductService.UpdateProductAsync(request, cancellationToken);
             return response;
         }
 
@@ -162,42 +197,42 @@ namespace InventoryMS.Api.Controllers
         [HttpDelete]
         [Route("delete")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> DeleteSize(string SizeId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> DeleteProduct(string ProductId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                if (SizeId == null)
+                if (ProductId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     return response;
                 }
-                var size = await service.SizeService.GetAsync(new GenericRequest<Size>
+                var product = await service.ProductService.GetAsync(new GenericRequest<Product>
                 {
-                    Expression = s => s.SizeId.ToString() == SizeId.ToString(),
+                    Expression = p => p.ProductId.ToString() == ProductId.ToString(),
                     CancellationToken = cancellationToken
                 });
-                if (size == null)
+                if (product == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NoContent;
-                    response.Message = "Size Not Found";
+                    response.Message = "Product Not Found";
                     return response;
                 }
-                service.SizeService.Remove(size);
+                service.ProductService.Remove(product);
                 int r = await service.Save(cancellationToken);
                 if (r == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to delete size";
+                    response.Message = "Failed to delete product";
                     return response;
                 }
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
-                response.Message = "Size deleted successfully";
+                response.Message = "Product deleted successfully";
                 return response;
             }
             catch(OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
