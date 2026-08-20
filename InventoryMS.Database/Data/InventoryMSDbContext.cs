@@ -16,8 +16,15 @@ namespace InventoryMS.Database.Data
         public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Warehouse> Warehouses => Set<Warehouse>();
-        public DbSet<Category> Categories => Set<Category>();
+
+        //product related tables
         public DbSet<Brand> Brands => Set<Brand>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Color> Colors => Set<Color>();
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+        public DbSet<Size> Sizes => Set<Size>();
+        public DbSet<Unit> Units => Set<Unit>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

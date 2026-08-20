@@ -8,13 +8,15 @@ namespace InventoryMS.Models.Entities.ProductModels
     public class ProductVariant
     {
         [Key]
-        public int VariantId { get; init; }
-        public int ProductId { get; set; }
-        public int ColorId { get; set; }
-        public int SizeId { get; set; }
+        public Guid VariantId { get; init; }
+        public Guid ProductId { get; set; } // Foreign key to the Product entity
+        public Guid ColorId { get; set; } // Foreign key to the Color entity
+        public Guid SizeId { get; set; } // Foreign key to the Size entity
         public string SKU { get; set; }
         public string? Barcode { get; set; }
         public int MinimumStock { get; set; }
         public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

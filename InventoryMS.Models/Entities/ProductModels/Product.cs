@@ -8,13 +8,14 @@ namespace InventoryMS.Models.Entities.ProductModels
     public class Product
     {
         [Key]
-        public int ProductId { get; set; }
+        public Guid ProductId { get; init; }
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
-        public int CategoryId { get; set; }
-        public int BrandId { get; set; }
-        public int UnitId { get; set; }
+        public Guid CategoryId { get; set; } // Foreign key to Category
+        public Guid BrandId { get; set; } // Foreign key to Brand
+        public Guid UnitId { get; set; } // Foreign key to Unit
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

@@ -15,17 +15,17 @@ namespace InventoryMS.Api.Controllers
     [Route("api/v{version:apiVersion}/category")]
     [ApiController]
     [ApiVersion("1.0")]
-    public class CategoryController(IServiceManager service) : ControllerBase
+    public class ColorController(IServiceManager service) : ControllerBase
     {
         [HttpGet]
         [Route("get-all")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetAllCategory(CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetAllColor(CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                var result = await service.CategoryService.GetAllAsync(new GenericRequest<Category>
+                var result = await service.ColorService.GetAllAsync(new GenericRequest<Color>
                 {
                     Expression = null,
                     CancellationToken = cancellationToken
@@ -35,7 +35,7 @@ namespace InventoryMS.Api.Controllers
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Category data not found";
+                    response.Message = "Color data not found";
                     return response;
                 }
                 response.Success = true;
@@ -57,24 +57,24 @@ namespace InventoryMS.Api.Controllers
         [HttpGet]
         [Route("get-by-id")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetCategoryById(string CategoryId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetColorById(string ColorId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                if (CategoryId == null)
+                if (ColorId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     response.Message = "Invalid Id";
                     return response;
                 }
-                var result = await service.CategoryService.GetAsync(new GenericRequest<Category> { Expression = c => c.CategoryId.ToString() == CategoryId, CancellationToken = cancellationToken });
+                var result = await service.ColorService.GetAsync(new GenericRequest<Color> { Expression = c => c.ColorId.ToString() == ColorId, CancellationToken = cancellationToken });
                 if (result == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Category data not found";
+                    response.Message = "Color data not found";
                     return response;
                 }
                 response.Success = true;
@@ -96,7 +96,7 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("create")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> CreateCategory(CreateCategoryDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> CreateColor(CreateColorDto request, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
@@ -109,21 +109,21 @@ namespace InventoryMS.Api.Controllers
                     response.Message = "Invalid request data";
                     return response;
                 }
-                Category toCreate = new()
+                Color toCreate = new()
                 {
-                    CategoryName = request.CategoryName,
-                    Description = request.Description,
+                    ColorName = request.ColorName,
+                    ColorCode = request.ColorCode,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = true,
                     
                 };
-                await service.CategoryService.AddAsync(toCreate, cancellationToken);
+                await service.ColorService.AddAsync(toCreate, cancellationToken);
                 int result = await service.Save(cancellationToken);
                 if (result == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to create category";
+                    response.Message = "Failed to create color";
                     return response;
                 }
                 response.Success = true;
@@ -152,10 +152,10 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("update")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> UpdateCategory(UpdateCategoryDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> UpdateColor(UpdateColorDto request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var response = await service.CategoryService.UpdateCategoryAsync(request, cancellationToken);
+            var response = await service.ColorService.UpdateColorAsync(request, cancellationToken);
             return response;
         }
 
@@ -163,42 +163,42 @@ namespace InventoryMS.Api.Controllers
         [HttpDelete]
         [Route("delete")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> DeleteCategory(string CategoryId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> DeleteColor(string ColorId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                if (CategoryId == null)
+                if (ColorId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     return response;
                 }
-                var category = await service.CategoryService.GetAsync(new GenericRequest<Category>
+                var color = await service.ColorService.GetAsync(new GenericRequest<Color>
                 {
-                    Expression = c => c.CategoryId.ToString() == CategoryId.ToString(),
+                    Expression = c => c.ColorId.ToString() == ColorId.ToString(),
                     CancellationToken = cancellationToken
                 });
-                if (category == null)
+                if (color == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NoContent;
-                    response.Message = "Category Not Found";
+                    response.Message = "Color Not Found";
                     return response;
                 }
-                service.CategoryService.Remove(category);
+                service.ColorService.Remove(color);
                 int r = await service.Save(cancellationToken);
                 if (r == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to delete category";
+                    response.Message = "Failed to delete color";
                     return response;
                 }
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
-                response.Message = "Category deleted successfully";
+                response.Message = "Color deleted successfully";
                 return response;
             }
             catch(OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)

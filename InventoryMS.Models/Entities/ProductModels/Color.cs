@@ -8,8 +8,11 @@ namespace InventoryMS.Models.Entities.ProductModels
     public class Color
     {
         [Key]
-        public int ColorId { get; init; }
-        public string ColorName { get; init; }
-        public string ColorCode { get; init; }
+        public Guid ColorId { get; init; }
+        public string ColorName { get; set; }
+        public string ColorCode { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -8,8 +8,11 @@ namespace InventoryMS.Models.Entities.ProductModels
     public class Size
     {
         [Key]
-        public int SizeId { get; init; }
-        public string SizeName { get; init; }
-        public int DisplayOrder { get; init; }
+        public Guid SizeId { get; init; }
+        public string SizeName { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }
