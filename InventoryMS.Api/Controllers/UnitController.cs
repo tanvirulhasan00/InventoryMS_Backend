@@ -205,7 +205,7 @@ namespace InventoryMS.Api.Controllers
             {
                 response.Success = false;
                 response.StatusCode = HttpStatusCode.RequestTimeout;
-                response.Message = "Oparetion Canceled";
+                response.Message = "Operation Canceled";
                 response.Error = ex.Message;
                 return response;
             }catch (Exception ex)

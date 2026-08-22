@@ -1,7 +1,9 @@
 ﻿using InventoryMS.Models.Entities.ApplicationUserModel;
 using InventoryMS.Models.Entities.CustomerModel;
 using InventoryMS.Models.Entities.LotModel;
+using InventoryMS.Models.Entities.PhoneNumberModel;
 using InventoryMS.Models.Entities.ProductModels;
+using InventoryMS.Models.Entities.SupplierModel;
 using InventoryMS.Models.Entities.WarehouseModel;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,8 @@ namespace InventoryMS.Database.Data
         public DbSet<Size> Sizes => Set<Size>();
         public DbSet<Unit> Units => Set<Unit>();
         public DbSet<Lot> Lots => Set<Lot>();
+        public DbSet<Supplier> Suppliers => Set<Supplier>();
+        public DbSet<PhoneNumber> PhoneNumbers => Set<PhoneNumber>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

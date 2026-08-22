@@ -1,6 +1,6 @@
 ﻿using Asp.Versioning;
-using InventoryMS.Models.Entities.ProductModels;
-using InventoryMS.Models.Entities.ProductModels.Dto;
+using InventoryMS.Models.Entities.PhoneNumberModel;
+using InventoryMS.Models.Entities.PhoneNumberModel.Dto;
 using InventoryMS.Models.Request;
 using InventoryMS.Models.Response;
 using InventoryMS.Services.IServiceModels;
@@ -12,20 +12,20 @@ using System.Net;
 
 namespace InventoryMS.Api.Controllers
 {
-    [Route("api/v{version:apiVersion}/category")]
+    [Route("api/v{version:apiVersion}/phone-number")]
     [ApiController]
     [ApiVersion("1.0")]
-    public class CategoryController(IServiceManager service) : ControllerBase
+    public class PhoneNumberController(IServiceManager service) : ControllerBase
     {
         [HttpGet]
         [Route("get-all")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetAllCategory(CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetAllPhoneNumber(CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                var result = await service.CategoryService.GetAllAsync(new GenericRequest<Category>
+                var result = await service.PhoneNumberService.GetAllAsync(new GenericRequest<PhoneNumber>
                 {
                     Expression = null,
                     CancellationToken = cancellationToken
@@ -35,7 +35,7 @@ namespace InventoryMS.Api.Controllers
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Category data not found";
+                    response.Message = "Phone number data not found";
                     return response;
                 }
                 response.Success = true;
@@ -57,24 +57,24 @@ namespace InventoryMS.Api.Controllers
         [HttpGet]
         [Route("get-by-id")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetCategoryById(string CategoryId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetPhoneNumberById(string PhoneNumberId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                if (CategoryId == null)
+                if (PhoneNumberId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     response.Message = "Invalid Id";
                     return response;
                 }
-                var result = await service.CategoryService.GetAsync(new GenericRequest<Category> { Expression = c => c.CategoryId.ToString() == CategoryId, CancellationToken = cancellationToken });
+                var result = await service.PhoneNumberService.GetAsync(new GenericRequest<PhoneNumber> { Expression = p => p.PhoneNumberId.ToString() == PhoneNumberId, CancellationToken = cancellationToken });
                 if (result == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Category data not found";
+                    response.Message = "Phone number data not found";
                     return response;
                 }
                 response.Success = true;
@@ -96,7 +96,7 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("create")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> CreateCategory(CreateCategoryDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> CreatePhoneNumber(CreatePhoneNumberDto request, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
@@ -109,21 +109,21 @@ namespace InventoryMS.Api.Controllers
                     response.Message = "Invalid request data";
                     return response;
                 }
-                Category toCreate = new()
+                PhoneNumber toCreate = new()
                 {
-                    CategoryName = request.CategoryName,
-                    Description = request.Description,
+                    Number = request.Number,
+                    OwnerId = request.OwnerId,
                     CreatedAt = DateTime.UtcNow,
                     IsActive = true,
                     
                 };
-                await service.CategoryService.AddAsync(toCreate, cancellationToken);
+                await service.PhoneNumberService.AddAsync(toCreate, cancellationToken);
                 int result = await service.Save(cancellationToken);
                 if (result == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to create category";
+                    response.Message = "Failed to create phone number";
                     return response;
                 }
                 response.Success = true;
@@ -152,10 +152,10 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("update")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> UpdateCategory(UpdateCategoryDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> UpdatePhoneNumber(UpdatePhoneNumberDto request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var response = await service.CategoryService.UpdateCategoryAsync(request, cancellationToken);
+            var response = await service.PhoneNumberService.UpdatePhoneNumberAsync(request, cancellationToken);
             return response;
         }
 
@@ -163,42 +163,42 @@ namespace InventoryMS.Api.Controllers
         [HttpDelete]
         [Route("delete")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> DeleteCategory(string CategoryId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> DeletePhoneNumber(string PhoneNumberId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                if (CategoryId == null)
+                if (PhoneNumberId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     return response;
                 }
-                var category = await service.CategoryService.GetAsync(new GenericRequest<Category>
+                var phoneNumber = await service.PhoneNumberService.GetAsync(new GenericRequest<PhoneNumber>
                 {
-                    Expression = c => c.CategoryId.ToString() == CategoryId.ToString(),
+                    Expression = p => p.PhoneNumberId.ToString() == PhoneNumberId.ToString(),
                     CancellationToken = cancellationToken
                 });
-                if (category == null)
+                if (phoneNumber == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NoContent;
-                    response.Message = "Category Not Found";
+                    response.Message = "Phone Number Not Found";
                     return response;
                 }
-                service.CategoryService.Remove(category);
+                service.PhoneNumberService.Remove(phoneNumber);
                 int r = await service.Save(cancellationToken);
                 if (r == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to delete category";
+                    response.Message = "Failed to delete phone number";
                     return response;
                 }
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
-                response.Message = "Category deleted successfully";
+                response.Message = "Phone Number deleted successfully";
                 return response;
             }
             catch(OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
