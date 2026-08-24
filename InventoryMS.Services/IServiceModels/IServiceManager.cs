@@ -17,6 +17,7 @@ namespace InventoryMS.Services.IServiceModels
         public ISizeService SizeService { get; }
         public IUnitService UnitService { get; }
         public IProductService ProductService { get; }
+        public IProductVariantService ProductVariantService { get; }
         public ISupplierService SupplierService { get; }
         public IPhoneNumberService PhoneNumberService { get; }
     }

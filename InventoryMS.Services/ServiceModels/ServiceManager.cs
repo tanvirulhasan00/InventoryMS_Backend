@@ -29,6 +29,7 @@ namespace InventoryMS.Services.ServiceModels
         ISizeService IServiceManager.SizeService => new SizeService(context);
         IUnitService IServiceManager.UnitService => new UnitService(context);
         IProductService IServiceManager.ProductService => new ProductService(context);
+        IProductVariantService IServiceManager.ProductVariantService => new ProductVariantService(context);
         ISupplierService IServiceManager.SupplierService => new SupplierService(context);
         IPhoneNumberService IServiceManager.PhoneNumberService => new PhoneNumberService(context);
 

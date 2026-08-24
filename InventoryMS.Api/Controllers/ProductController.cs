@@ -46,7 +46,7 @@ namespace InventoryMS.Api.Controllers
                     p.ProductName,
                     p.Category.CategoryName,
                     p.Brand.BrandName,
-                    p.Unit.UnitName,
+                    p.Unit.UnitShortName,
                     p.IsActive,
                     p.CreatedAt,
                     p.UpdatedAt
@@ -97,7 +97,7 @@ namespace InventoryMS.Api.Controllers
                     result.ProductName,
                     result.Category.CategoryName,
                     result.Brand.BrandName,
-                    result.Unit.UnitName,
+                    result.Unit.UnitShortName,
                     result.IsActive,
                     CreatedAt = result.CreatedAt.ToLocalTime(),
                     UpdatedAt = result.UpdatedAt.ToLocalTime()

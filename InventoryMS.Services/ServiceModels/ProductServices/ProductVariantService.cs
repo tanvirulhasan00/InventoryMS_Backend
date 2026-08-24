@@ -11,32 +11,37 @@ using System.Text;
 
 namespace InventoryMS.Services.ServiceModels.ProductServices
 {
-    public class SizeService(InventoryMSDbContext context) : Services<Size>(context), ISizeService
+    public class ProductVariantService(InventoryMSDbContext context) : Services<ProductVariant>(context), IProductVariantService
     {
-        public async Task<ApiResponse> UpdateSizeAsync(UpdateSizeDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> UpdateProductVariantAsync(UpdateProductVariantDto request, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                if (request.SizeId == null || request.SizeId == "")
+                if (request.ProductId == null || request.ProductId == "")
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
-                    response.Message = "Invalid Size Id";
+                    response.Message = "Invalid Product Id";
                     return response;
                 }
-                var size = await context.Sizes.FirstOrDefaultAsync(s => s.SizeId.ToString() == request.SizeId, cancellationToken);
-                if (size == null)
+                var productVariant = await context.ProductVariants.FirstOrDefaultAsync(p => p.VariantId.ToString() == request.VariantId, cancellationToken);
+                if (productVariant == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Size not found";
+                    response.Message = "Product variant not found";
                     return response;
                 }
 
-                size.SizeName = (request.SizeName == "" || request.SizeName == null) ? size.SizeName : request.SizeName;
-                size.DisplayOrder = request.DisplayOrder <= 0 ? size.DisplayOrder : request.DisplayOrder;
-                size.UpdatedAt = DateTime.UtcNow;
+                productVariant.ProductId = (request.ProductId == "" || request.ProductId == null) ? productVariant.ProductId : Guid.Parse(request.ProductId);
+                productVariant.ColorId = (request.ColorId == "" || request.ColorId == null) ? productVariant.ColorId : Guid.Parse(request.ColorId);
+                productVariant.SizeId = (request.SizeId == "" || request.SizeId == null) ? productVariant.SizeId : Guid.Parse(request.SizeId);
+                productVariant.LotId = (request.LotId == "" || request.LotId == null) ? productVariant.LotId : Guid.Parse(request.LotId);
+                productVariant.SKU = (request.SKU == "" || request.SKU == null) ? productVariant.SKU : request.SKU;
+                productVariant.Barcode = (request.Barcode == "" || request.Barcode == null) ? productVariant.Barcode : request.Barcode;
+                productVariant.MinimumStock = (request.MinimumStock == 0) ? productVariant.MinimumStock : request.MinimumStock;
+                productVariant.UpdatedAt = DateTime.UtcNow;
 
                 int r = await context.SaveChangesAsync(cancellationToken);
 
@@ -44,15 +49,15 @@ namespace InventoryMS.Services.ServiceModels.ProductServices
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to update size";
+                    response.Message = "Failed to update product variant";
                     return response;
                 }
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
-                response.Message = "Size updated successfully";
+                response.Message = "Product variant updated successfully";
                 return response;
             }
-            catch(OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
             {
                 response.Success = false;
                 response.StatusCode = HttpStatusCode.RequestTimeout;
