@@ -1,34 +1,32 @@
 ﻿using Asp.Versioning;
-using InventoryMS.Models.Entities.ProductModels;
-using InventoryMS.Models.Entities.ProductModels.Dto;
+using InventoryMS.Models.Entities.PurchaseModels;
+using InventoryMS.Models.Entities.PurchaseModels.Dto;
 using InventoryMS.Models.Request;
 using InventoryMS.Models.Response;
 using InventoryMS.Services.IServiceModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 
 namespace InventoryMS.Api.Controllers
 {
-    [Route("api/v{version:apiVersion}/product-variant")]
+    [Route("api/v{version:apiVersion}/purchase-header")]
     [ApiController]
     [ApiVersion("1.0")]
-    public class ProductVariantController(IServiceManager service) : ControllerBase
+    public class PurchaseHeaderController(IServiceManager service) : ControllerBase
     {
         [HttpGet]
         [Route("get-all")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetAllProductVariants(CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetAllPurchaseHeaders(CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                var result = await service.ProductVariantService.GetAllAsync(new GenericRequest<ProductVariant>
+                var result = await service.PurchaseHeaderService.GetAllAsync(new GenericRequest<PurchaseHeader>
                 {
                     Expression = null,
-                    IncludeProperties = "Product,Product.Category,Product.Brand,Product.Unit,Color,Size,Lot",
                     CancellationToken = cancellationToken
 
                 });
@@ -36,30 +34,13 @@ namespace InventoryMS.Api.Controllers
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Product data not found";
+                    response.Message = "Purchase header data not found";
                     return response;
                 }
-                var productToShow = result.Select(p => new
-                {
-                    p.VariantId,
-                    p.Product?.ProductName,
-                    p.Product?.Category?.CategoryName,
-                    p.Product?.Brand?.BrandName,
-                    p.Product?.Unit?.UnitShortName,
-                    p.Size?.SizeName,
-                    p.Color?.ColorName,
-                    p.Lot?.LotNumber,
-                    p.SKU,
-                    p.Barcode,
-                    p.MinimumStock,
-                    p.IsActive,
-                    p.CreatedAt,
-                    p.UpdatedAt
-                }).ToList();
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
                 response.Message = "Successful";
-                response.Results = productToShow;
+                response.Results = result;
                 return response;
 
             }
@@ -75,47 +56,30 @@ namespace InventoryMS.Api.Controllers
         [HttpGet]
         [Route("get-by-id")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> GetProductVariantById(string ProductVariantId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> GetPurchaseHeaderById(string PurchaseId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             try
             {
-                if (ProductVariantId == null)
+                if (PurchaseId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     response.Message = "Invalid Id";
                     return response;
                 }
-                var result = await service.ProductVariantService.GetAsync(new GenericRequest<ProductVariant> { Expression = pv => pv.VariantId.ToString() == ProductVariantId, IncludeProperties = "Product,Color,Size,Lot", CancellationToken = cancellationToken });
+                var result = await service.PurchaseHeaderService.GetAsync(new GenericRequest<PurchaseHeader> { Expression = p => p.PurchaseId.ToString() == PurchaseId, CancellationToken = cancellationToken });
                 if (result == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NotFound;
-                    response.Message = "Product variant not found";
+                    response.Message = "Purchase header data not found";
                     return response;
                 }
-                var productToShow = new
-                {
-                    result.VariantId,
-                    result.Product?.ProductName,
-                    result.Product?.Category?.CategoryName,
-                    result.Product?.Brand?.BrandName,
-                    result.Product?.Unit?.UnitShortName,
-                    result.Size?.SizeName,
-                    result.Color?.ColorName,
-                    result.Lot?.LotNumber,
-                    result.SKU,
-                    result.Barcode,
-                    result.MinimumStock,
-                    result.IsActive,
-                    CreatedAt = result.CreatedAt.ToLocalTime(),
-                    UpdatedAt = result.UpdatedAt.ToLocalTime()
-                };
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
                 response.Message = "Successful";
-                response.Results = productToShow;
+                response.Results = result;
                 return response;
 
             }
@@ -131,7 +95,7 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("create")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> CreateProductVariant(CreateProductVariantDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> CreatePurchaseHeader(CreatePurchaseHeaderDto request, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
@@ -144,34 +108,39 @@ namespace InventoryMS.Api.Controllers
                     response.Message = "Invalid request data";
                     return response;
                 }
-                var existingProduct = await service.ProductService.GetAllAsync(new GenericRequest<Product>
+                var allPh = await service.PurchaseHeaderService.GetAllAsync(new GenericRequest<PurchaseHeader>
                 {
                     Expression = null,
                     CancellationToken = cancellationToken
+
                 });
-                var nextNumber = existingProduct.Count + 1;
-                ProductVariant toCreate = new()
+                var nextNumber = allPh.Count + 1;
+                var purCode = $"{nextNumber:D3}";
+                var nextInNumber = allPh.Count + 1;
+                var inv = $"INV-{nextNumber:D4}";
+                PurchaseHeader toCreate = new()
                 {
-                    ProductId = Guid.Parse(request.ProductId),
-                    ColorId = Guid.Parse(request.ColorId),
-                    SizeId = Guid.Parse(request.SizeId),
-                    LotId = string.IsNullOrWhiteSpace(request.LotId) ? null : Guid.Parse(request.LotId),
-                    SKU = request.SKU,
-                    Barcode = request.Barcode,
-                    MinimumStock = request.MinimumStock,
-                    IsActive = true,
+                    PurchaseNo = int.Parse(purCode),
+                    SupplierId = Guid.Parse(request.SupplierId),
+                    WarehouseId = Guid.Parse(request.WarehouseId),
+                    InvoiceNo = inv,
+                    PurchaseDate = request.PurchaseDate,
+                    Remarks = request.Remarks,
+                    Status = request.Status,
+                    CreatedBy = Guid.Parse(request.CreatedBy),
                     CreatedAt = DateTime.UtcNow,
-                    
                 };
-                await service.ProductVariantService.AddAsync(toCreate, cancellationToken);
+
+                await service.PurchaseHeaderService.AddAsync(toCreate, cancellationToken);
                 int result = await service.Save(cancellationToken);
                 if (result == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to create product variant";
+                    response.Message = "Failed to create purchase header";
                     return response;
                 }
+
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
                 response.Message = "Successfully Created";
@@ -198,10 +167,10 @@ namespace InventoryMS.Api.Controllers
         [HttpPost]
         [Route("update")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> UpdateProductVariant(UpdateProductVariantDto request, CancellationToken cancellationToken)
+        public async Task<ApiResponse> UpdatePurchaseHeader(UpdatePurchaseHeaderDto request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var response = await service.ProductVariantService.UpdateProductVariantAsync(request, cancellationToken);
+            var response = await service.PurchaseHeaderService.UpdatePurchaseHeaderAsync(request, cancellationToken);
             return response;
         }
 
@@ -209,42 +178,42 @@ namespace InventoryMS.Api.Controllers
         [HttpDelete]
         [Route("delete")]
         [Authorize(Roles = "admin,manager,housemanager")]
-        public async Task<ApiResponse> DeleteProductVariant(string ProductVariantId, CancellationToken cancellationToken)
+        public async Task<ApiResponse> DeletePurchaseHeader(string PurchaseHeaderId, CancellationToken cancellationToken)
         {
             var response = new ApiResponse();
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                if (ProductVariantId == null)
+                if (PurchaseHeaderId == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.BadRequest;
                     return response;
                 }
-                var productVariant = await service.ProductVariantService.GetAsync(new GenericRequest<ProductVariant>
+                var purchase = await service.PurchaseHeaderService.GetAsync(new GenericRequest<PurchaseHeader>
                 {
-                    Expression = pv => pv.VariantId.ToString() == ProductVariantId.ToString(),
+                    Expression = p => p.PurchaseId.ToString() == PurchaseHeaderId.ToString(),
                     CancellationToken = cancellationToken
                 });
-                if (productVariant == null)
+                if (purchase == null)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.NoContent;
-                    response.Message = "Product Variant Not Found";
+                    response.Message = "Purchase Header Not Found";
                     return response;
                 }
-                service.ProductVariantService.Remove(productVariant);
+                service.PurchaseHeaderService.Remove(purchase);
                 int r = await service.Save(cancellationToken);
                 if (r == 0)
                 {
                     response.Success = false;
                     response.StatusCode = HttpStatusCode.InternalServerError;
-                    response.Message = "Failed to delete product variant";
+                    response.Message = "Failed to delete purchase header";
                     return response;
                 }
                 response.Success = true;
                 response.StatusCode = HttpStatusCode.OK;
-                response.Message = "Product Variant deleted successfully";
+                response.Message = "Purchase Header deleted successfully";
                 return response;
             }
             catch(OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)

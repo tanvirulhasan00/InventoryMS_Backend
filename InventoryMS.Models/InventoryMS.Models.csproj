@@ -14,8 +14,6 @@
   <ItemGroup>
     <Folder Include="Entities\TransferModels\Dto\" />
     <Folder Include="Entities\AdjustmentModels\Dto\" />
-    <Folder Include="Entities\LotModel\Dto\" />
-    <Folder Include="Entities\PurchaseModel\Dto\" />
     <Folder Include="Entities\SalesModel\Dto\" />
     <Folder Include="Entities\StockModel\Dto\" />
   </ItemGroup>

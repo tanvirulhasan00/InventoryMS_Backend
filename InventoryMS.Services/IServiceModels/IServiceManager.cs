@@ -20,5 +20,6 @@ namespace InventoryMS.Services.IServiceModels
         public IProductVariantService ProductVariantService { get; }
         public ISupplierService SupplierService { get; }
         public IPhoneNumberService PhoneNumberService { get; }
+        public IPurchaseHeaderService PurchaseHeaderService { get; }
     }
 }

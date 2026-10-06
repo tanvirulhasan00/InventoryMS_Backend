@@ -32,6 +32,7 @@ namespace InventoryMS.Services.ServiceModels
         IProductVariantService IServiceManager.ProductVariantService => new ProductVariantService(context);
         ISupplierService IServiceManager.SupplierService => new SupplierService(context);
         IPhoneNumberService IServiceManager.PhoneNumberService => new PhoneNumberService(context);
+        IPurchaseHeaderService IServiceManager.PurchaseHeaderService => new PurchaseHeaderService(context);
 
 
         public async Task<int> Save(CancellationToken cancellationToken)

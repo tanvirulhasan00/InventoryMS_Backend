@@ -3,6 +3,7 @@ using InventoryMS.Models.Entities.CustomerModel;
 using InventoryMS.Models.Entities.LotModel;
 using InventoryMS.Models.Entities.PhoneNumberModel;
 using InventoryMS.Models.Entities.ProductModels;
+using InventoryMS.Models.Entities.PurchaseModels;
 using InventoryMS.Models.Entities.SupplierModel;
 using InventoryMS.Models.Entities.WarehouseModel;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace InventoryMS.Database.Data
         public DbSet<Lot> Lots => Set<Lot>();
         public DbSet<Supplier> Suppliers => Set<Supplier>();
         public DbSet<PhoneNumber> PhoneNumbers => Set<PhoneNumber>();
+        //public DbSet<PurchaseHeader> PurchaseHeaders => Set<PurchaseHeader>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
